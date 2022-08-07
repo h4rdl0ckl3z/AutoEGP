@@ -4,6 +4,8 @@ python 3.8
 
 pandas 1.4.3
 
+mariadb
+
 
 # How to fixed : lookuperror unknown encoding windows-874
 
