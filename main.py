@@ -11,8 +11,8 @@ parameter_deptId = '?deptId='
 parameter_anounceType = '&anounceType='
 
 
-deptId_txt = open('agency_code.txt', 'r')
-anounceType_txt = open('anounceType.txt', 'r')
+deptId_txt = open('deptid.txt', 'r')
+anounceType_txt = open('anouncetype.txt', 'r')
 
 deptId_ = []
 anounceType_ = []
