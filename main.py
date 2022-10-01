@@ -313,6 +313,6 @@ for char in bar:
     elif char == "2":
         data_duplicate()
     else:
-        upload_mariadb()
+        upload_access()
     text = text + char
 print('Succeed to Complete.!')
