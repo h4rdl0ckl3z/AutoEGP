@@ -59,7 +59,7 @@ def auto_egp():
                                     item.tag: []
                                 })
                         list_test.update({
-                            'numID': [],
+                            'deptID': [],
                             'pubT': [],
                             'pubD': [],
                             'pubM': [],
@@ -80,7 +80,7 @@ def auto_egp():
                                 list_test[item.tag].append(item.text)
                         deptId_str = deptId
                         deptId_str = deptId_str.replace('\n', '')
-                        list_test['numID'].append(deptId_str)
+                        list_test['deptID'].append(deptId_str)
                         anounceType_str = anounceType
                         anounceType_str = anounceType_str.replace('\n', '')
                         #print(anounceType_str)
