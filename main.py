@@ -1,6 +1,7 @@
 def auto_egp():
 
     from urllib.request import urlopen
+    from urllib.error import HTTPError
     import xml.etree.ElementTree as ET
     import os
     import pandas as pd
@@ -62,77 +63,83 @@ def auto_egp():
         for anounceType in anounceType_:
             url_str = url + parameter_deptId + deptId + parameter_anounceType + anounceType
 
-            url_open = urlopen(url_str)
+            try:
+                try:
+                    url_open = urlopen(url_str)
 
-            root = ET.parse(url_open).getroot()
+                    root = ET.parse(url_open).getroot()
 
-            # get title
-            for rss in root:
-                for channel in rss:
-                    if channel.tag == 'item':
-                        # print(channel.tag)
-                        for item in channel:
-                            if item.tag == 'description' or item.tag == 'guid':
-                                pass
-                            else:
+                    # get title
+                    for rss in root:
+                        for channel in rss:
+                            if channel.tag == 'item':
+                                # print(channel.tag)
+                                for item in channel:
+                                    if item.tag == 'description' or item.tag == 'guid':
+                                        pass
+                                    else:
+                                        list_test.update({
+                                            item.tag: []
+                                        })
                                 list_test.update({
-                                    item.tag: []
+                                    'numID': [],
+                                    'pubT': [],
+                                    'pubD': [],
+                                    'pubM': [],
+                                    'pubY': []
                                 })
-                        list_test.update({
-                            'numID': [],
-                            'pubT': [],
-                            'pubD': [],
-                            'pubM': [],
-                            'pubY': []
-                        })
 
-            # get data
-            for rss in root:
-                for channel in rss:
-                    if channel.tag == 'item':
-                        # print(channel.tag)
-                        for item in channel:
-                            # print(item.tag)
-                            if item.tag == 'description' or item.tag == 'guid':
-                                pass
-                            else:
-                                # print(item.text)
-                                list_test[item.tag].append(item.text)
-                        list_test['numID'].append(deptId)
-                        if anounceType == 'W0':
-                            list_test['pubT'].append(1)
-                        elif anounceType == 'D1':
-                            list_test['pubT'].append(2)
-                        elif anounceType == 'P0':
-                            list_test['pubT'].append(3)
-                        elif anounceType == '15':
-                            list_test['pubT'].append(4)
-                        elif anounceType == 'D0':
-                            list_test['pubT'].append(5)
-                        elif anounceType == 'W1':
-                            list_test['pubT'].append(6)
-                        elif anounceType == 'D2':
-                            list_test['pubT'].append(7)
-                        elif anounceType == 'W2':
-                            list_test['pubT'].append(8)
-                        else:       # B0
-                            list_test['pubT'].append(9)
-                        list_test['pubD'].append(today_d)
-                        list_test['pubM'].append(tomonth_m)
-                        list_test['pubY'].append(toyear)
+                    # get data
+                    for rss in root:
+                        for channel in rss:
+                            if channel.tag == 'item':
+                                # print(channel.tag)
+                                for item in channel:
+                                    # print(item.tag)
+                                    if item.tag == 'description' or item.tag == 'guid':
+                                        pass
+                                    else:
+                                        # print(item.text)
+                                        list_test[item.tag].append(item.text)
+                                list_test['numID'].append(deptId)
+                                if anounceType == 'W0':
+                                    list_test['pubT'].append(1)
+                                elif anounceType == 'D1':
+                                    list_test['pubT'].append(2)
+                                elif anounceType == 'P0':
+                                    list_test['pubT'].append(3)
+                                elif anounceType == '15':
+                                    list_test['pubT'].append(4)
+                                elif anounceType == 'D0':
+                                    list_test['pubT'].append(5)
+                                elif anounceType == 'W1':
+                                    list_test['pubT'].append(6)
+                                elif anounceType == 'D2':
+                                    list_test['pubT'].append(7)
+                                elif anounceType == 'W2':
+                                    list_test['pubT'].append(8)
+                                else:       # B0
+                                    list_test['pubT'].append(9)
+                                list_test['pubD'].append(today_d)
+                                list_test['pubM'].append(tomonth_m)
+                                list_test['pubY'].append(toyear)
 
-            # print(list_test)
+                    # print(list_test)
 
-            if list_test != {}:
+                    if list_test != {}:
 
-                df = pd.DataFrame(list_test)
+                        df = pd.DataFrame(list_test)
 
-                # .csv ภาษาไทย เอ่อออ
+                        # .csv ภาษาไทย เอ่อออ
 
-                if os.path.isfile(file_csv) == True:
-                    df.to_csv(file_csv, index=False, mode='a', header=False)
-                else:
-                    df.to_csv(file_csv, index=False)
+                        if os.path.isfile(file_csv) == True:
+                            df.to_csv(file_csv, index=False, mode='a', header=False)
+                        else:
+                            df.to_csv(file_csv, index=False)
+                except ConnectionResetError as e:
+                    print(e)
+            except HTTPError as e:
+                print(e)
 
 
 
@@ -297,6 +304,7 @@ print("""
 
 """)
 
+
 def loading():
 
     from datetime import datetime
@@ -323,8 +331,16 @@ time_now = str(datetime.now().strftime('%H:%M'))
 # print(time_now)
 
 if time_now >= '12:01' and time_now <= '12:59':
+    print('''
+E-GP Systems. Status: ONLINE
+    ''')
     loading()
 elif time_now >= '17:01' and time_now <= '08:59':
+    print('''
+E-GP Systems. Status: ONLINE
+    ''')
     loading()
 else:
-    print('EGP Close')
+    print('''
+E-GP Systems. Status: OFFLINE
+    ''')
