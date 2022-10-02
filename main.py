@@ -60,7 +60,7 @@ def auto_egp():
 
     list_test = {}
 
-    for deptId in tqdm(deptId_, desc='Processing', colour='GREEN', ncols=100):
+    for deptId in tqdm(deptId_, desc='Processing', total=100, colour='GREEN', ncols=100):
         for anounceType in anounceType_:
             url_str = url + parameter_deptId + deptId + parameter_anounceType + anounceType
 
@@ -220,7 +220,7 @@ def upload_mariadb():
 
         # print(loopcheck("http://process3.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?servlet=gojsp&proc_id=ShowHTMLFile&processFlows=Procure&projectId=65087489973&templateType=W2&temp_Announ=A&temp_itemNo=0&seqNo=1"))
 
-        for i in tqdm(range(len(df['link'])), desc='Processing', colour='GREEN', ncols=100):
+        for i in tqdm(range(len(df['link'])), desc='Processing', total=100, colour='GREEN', ncols=100):
             # print(loopcheck(i))
             if loopcheck(df['link'][i]) == []:
                 # print("INSERT")
@@ -280,7 +280,7 @@ def upload_access():
             cursor.close()
             return data
 
-        for i in tqdm(range(len(df['link'])), desc='Processing', colour='GREEN', ncols=100):
+        for i in tqdm(range(len(df['link'])), desc='Processing', total=100, colour='GREEN', ncols=100):
             # print(loopcheck(i))
             if loopcheck(df['link'][i]) == []:
                 sql = "INSERT INTO EGP (title, link, pubDate, numID, pubT, pubD, pubM, pubY) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "')"
@@ -311,7 +311,7 @@ print("""
 def runall():
     auto_egp()
     from tqdm import trange
-    for i in trange(1, desc='Processing', colour='GREEN', ncols=100):
+    for i in trange(1, desc='Processing', total=100, colour='GREEN', ncols=100):
         data_duplicate()
     upload_access()
 
