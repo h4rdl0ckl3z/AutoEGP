@@ -297,15 +297,34 @@ print("""
 
 """)
 
+def loading():
 
-from tqdm.auto import tqdm
+    from datetime import datetime
 
-bar = tqdm(["1", "2", "3"], desc='Processing', colour='GREEN', ncols=100)
-for char in bar:
-    if char == "1":
-        auto_egp()
-    elif char == "2":
-        data_duplicate()
-    else:
-        upload_access()
-print('Succeed to Complete.!')
+    time_now = datetime.now().strftime('%H:%M')
+
+
+    from tqdm.auto import tqdm
+
+    bar = tqdm(["1", "2", "3"], desc='Processing', colour='GREEN', ncols=100)
+    for char in bar:
+        if char == "1":
+            auto_egp()
+        elif char == "2":
+            data_duplicate()
+        else:
+            upload_access()
+    print('Succeed to Complete.!')
+
+
+from datetime import datetime
+
+time_now = str(datetime.now().strftime('%H:%M'))
+# print(time_now)
+
+if time_now >= '12:01' and time_now <= '12:59':
+    loading()
+elif time_now >= '17:01' and time_now <= '08:59':
+    loading()
+else:
+    print('EGP Close')
