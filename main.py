@@ -27,34 +27,29 @@ def auto_egp():
     config_object.read("config.ini")
 
     access_info = config_object["DB_Access"]
-    username = access_info["username"]
+    user = access_info["username"]
     passwd = access_info["passwd"]
     access_path = access_info["database_path"]
 
-    import sqlalchemy as sa
-    driver = "{Microsoft Access Driver (*.mdb, *.accdb)}"
+    import pyodbc
 
-    connection_string = (
-        f"DRIVER={driver};"
-        f"DBQ={access_path};"
-        f"PWD={passwd};"
-        f"ExtendedAnsiSQL=1;"
-    )
-    connection_url = sa.engine.URL.create(
-        "access+pyodbc",
-        username=username,
-        password=passwd,
-        query={"odbc_connect": connection_string}
-    )
-    engine = sa.create_engine(connection_url)
+    conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + access_path + ';UID=' + user + ';PWD=' + passwd + '')
+    cursor = conn.cursor()
+
     sql = "SELECT numID FROM EGP_ID"
-    data = engine.connect().execute(sql).fetchall()
+
+    cursor.execute(sql)
+
+    data = cursor.fetchall()
     # print(data)
     deptId_ = []
     for i in data:
         # print(i)
         for _i in i:
             deptId_.append(str(_i))
+            
+    cursor.close()
+    conn.close()
 
     anounceType_ = ['W0', '15', 'B0', 'D0', 'D1', 'D2', 'P0', 'W1', 'W2']
 
@@ -168,7 +163,7 @@ def data_duplicate():
 
 def upload_mariadb():
 
-    from sqlalchemy import create_engine
+    import mysql.connector
     import pandas as pd
     from datetime import datetime
     import os
@@ -184,6 +179,14 @@ def upload_mariadb():
     port = mariadb_info["port"]
     db = mariadb_info["database"]
 
+    conn = mysql.connector.connect(
+        host=hostname,
+        user=username,
+        password=passwd,
+        database=db,
+        port=port
+    )
+
     today = datetime.now().strftime('%d%m%Y')
     tomonth = datetime.now().strftime('%B')
     toyear = datetime.now().strftime('%Y')
@@ -196,21 +199,14 @@ def upload_mariadb():
         df = pd.read_csv(file_csv)
         # print(df)
 
-        engine = create_engine('mysql+pymysql://' + username + ':' + passwd + '@' + hostname + ':' + port + '/' + db + '')
-        engine.connect()
-        # link_ = "'http://process3.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?servlet=gojsp&proc_id=ShowHTMLFile&processFlows=Procure&projectId=65087489973&templateType=W2&temp_Announ=A&temp_itemNo=0&seqNo=1'"
-
-        # title_ = 'จ้างซ่อมแซมถนนคอนกรีตเสริมเหล็กภายในหมู่บ้าน หมู่ที่ 4 บ้านนาสองเหมือง ตำบลนากอก อำเอนิคมคำสร้อย จังหวัดมุกดาหาร โดยวิธีเฉพาะเจาะจง'
-        # sql = 'SELECT `title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY` FROM `egp` WHERE link=' + link_
-
-        # test = engine.connect().execute(sql).fetchall()
-        # print(test)
-
         """"Complate!! Kuy MariaDB"""
 
         def loopcheck(link_):
-            sql = "SELECT * FROM egp WHERE link='" + link_ + "'"
-            data = engine.connect().execute(sql).fetchall()
+            sql = "SELECT * FROM `egp` WHERE link='" + link_ + "'"
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            data = cursor.fetchall()
+            cursor.close()
             return data
 
         # print(loopcheck("http://process3.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?servlet=gojsp&proc_id=ShowHTMLFile&processFlows=Procure&projectId=65087489973&templateType=W2&temp_Announ=A&temp_itemNo=0&seqNo=1"))
@@ -222,11 +218,17 @@ def upload_mariadb():
                 # print(df['link'][i])
                 sql = "INSERT INTO `egp`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "')"
                 # print(sql)
-                engine.connect().execute(sql)
+                cursor = conn.cursor()
+                cursor.execute(sql)
+                conn.commit()
+                cursor.close()
             # else:
             #     print("NOT INSERT")
     else:
         print('No Directory')
+
+    conn.close()
+
 
 
 def upload_access():
@@ -235,7 +237,6 @@ def upload_access():
     from datetime import datetime
     import os
 
-    import sqlalchemy as sa
     from configparser import ConfigParser
 
     #Read config.ini file
@@ -247,22 +248,8 @@ def upload_access():
     passwd = access_info["passwd"]
     access_path = access_info["database_path"]
 
-    import sqlalchemy as sa
-    driver = "{Microsoft Access Driver (*.mdb, *.accdb)}"
-
-    connection_string = (
-        f"DRIVER={driver};"
-        f"DBQ={access_path};"
-        f"PWD={passwd};"
-        f"ExtendedAnsiSQL=1;"
-    )
-    connection_url = sa.engine.URL.create(
-        "access+pyodbc",
-        username=username,
-        password=passwd,
-        query={"odbc_connect": connection_string}
-    )
-    engine = sa.create_engine(connection_url)
+    import pyodbc
+    conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:\Project\Auto-EGPV2\egp.mdb;UID=admin;PWD=stsbbs2009')
 
     today = datetime.now().strftime('%d%m%Y')
     tomonth = datetime.now().strftime('%B')
@@ -270,14 +257,18 @@ def upload_access():
 
     path_location = 'EGP/' + toyear+ '/' + tomonth
 
-    file_csv = path_location + '/' + today + '.csv'
+    # file_csv = path_location + '/' + today + '.csv'
+    file_csv = 'EGP/2022/October/01102022.csv'
 
     if os.path.isfile(file_csv) == True:
         df = pd.read_csv(file_csv)
         # print(df)
         def loopcheck(link_):
             sql = "SELECT * FROM EGP WHERE link='" + link_ + "'"
-            data = engine.connect().execute(sql).fetchall()
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            data = cursor.fetchall()
+            cursor.close()
             return data
 
         for i in range(len(df['link'])):
@@ -285,11 +276,16 @@ def upload_access():
             if loopcheck(df['link'][i]) == []:
                 sql = "INSERT INTO EGP (title, link, pubDate, numID, pubT, pubD, pubM, pubY) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "')"
                 # print(sql)
-                engine.connect().execute(sql)
+                cursor = conn.cursor()
+                cursor.execute(sql)
+                cursor.commit()
+                cursor.close()
             # else:
             #     print("NOT INSERT")
     else:
         print('No Directory')
+    
+    conn.close()
 
 
 
@@ -306,7 +302,6 @@ print("""
 from tqdm.auto import tqdm
 
 bar = tqdm(["1", "2", "3"], desc='Processing', colour='GREEN', ncols=100)
-text = ""
 for char in bar:
     if char == "1":
         auto_egp()
@@ -314,5 +309,4 @@ for char in bar:
         data_duplicate()
     else:
         upload_access()
-    text = text + char
 print('Succeed to Complete.!')
