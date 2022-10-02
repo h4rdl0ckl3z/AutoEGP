@@ -330,12 +330,12 @@ from datetime import datetime
 time_now = str(datetime.now().strftime('%H:%M'))
 # print(time_now)
 
-if time_now >= '12:01' and time_now <= '12:59':
+if time_now >= '12:01' or time_now <= '12:59':
     print('''
 E-GP Systems. Status: ONLINE
     ''')
     loading()
-elif time_now >= '17:01' and time_now <= '08:59':
+elif time_now >= '17:01' or time_now <= '08:59':
     print('''
 E-GP Systems. Status: ONLINE
     ''')
