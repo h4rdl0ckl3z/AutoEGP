@@ -307,11 +307,6 @@ print("""
 
 def loading():
 
-    from datetime import datetime
-
-    time_now = datetime.now().strftime('%H:%M')
-
-
     from tqdm.auto import tqdm
 
     bar = tqdm(["1", "2", "3"], desc='Processing', colour='GREEN', ncols=100)
