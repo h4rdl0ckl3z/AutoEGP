@@ -4,6 +4,7 @@
     pip install -r requirements.txt
 
 # Database mariadb or mysql
+# Database access
 
 
 # How to fixed : lookuperror unknown encoding windows-874
