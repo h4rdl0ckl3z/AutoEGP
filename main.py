@@ -6,6 +6,7 @@ def auto_egp():
     import os
     import pandas as pd
     from datetime import datetime
+    from tqdm.auto import tqdm
 
     today = datetime.now().strftime('%d%m%Y')
     tomonth = datetime.now().strftime('%B')
@@ -59,7 +60,7 @@ def auto_egp():
 
     list_test = {}
 
-    for deptId in deptId_:
+    for deptId in tqdm(deptId_, desc='Processing', colour='GREEN', ncols=100):
         for anounceType in anounceType_:
             url_str = url + parameter_deptId + deptId + parameter_anounceType + anounceType
 
@@ -174,6 +175,7 @@ def upload_mariadb():
     import pandas as pd
     from datetime import datetime
     import os
+    from tqdm.auto import tqdm
 
     from configparser import ConfigParser
     config_object = ConfigParser()
@@ -218,7 +220,7 @@ def upload_mariadb():
 
         # print(loopcheck("http://process3.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?servlet=gojsp&proc_id=ShowHTMLFile&processFlows=Procure&projectId=65087489973&templateType=W2&temp_Announ=A&temp_itemNo=0&seqNo=1"))
 
-        for i in range(len(df['link'])):
+        for i in tqdm(range(len(df['link'])), desc='Processing', colour='GREEN', ncols=100):
             # print(loopcheck(i))
             if loopcheck(df['link'][i]) == []:
                 # print("INSERT")
@@ -243,6 +245,7 @@ def upload_access():
     import pandas as pd
     from datetime import datetime
     import os
+    from tqdm.auto import tqdm
 
     from configparser import ConfigParser
 
@@ -277,7 +280,7 @@ def upload_access():
             cursor.close()
             return data
 
-        for i in range(len(df['link'])):
+        for i in tqdm(range(len(df['link'])), desc='Processing', colour='GREEN', ncols=100):
             # print(loopcheck(i))
             if loopcheck(df['link'][i]) == []:
                 sql = "INSERT INTO EGP (title, link, pubDate, numID, pubT, pubD, pubM, pubY) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "')"
@@ -305,19 +308,12 @@ print("""
 """)
 
 
-def loading():
-
-    from tqdm.auto import tqdm
-
-    bar = tqdm(["1", "2", "3"], desc='Processing', colour='GREEN', ncols=100)
-    for char in bar:
-        if char == "1":
-            auto_egp()
-        elif char == "2":
-            data_duplicate()
-        else:
-            upload_access()
-    print('Succeed to Complete.!')
+def runall():
+    auto_egp()
+    from tqdm import trange
+    for i in trange(1, desc='Processing', colour='GREEN', ncols=100):
+        data_duplicate()
+    upload_access()
 
 
 from datetime import datetime
@@ -329,13 +325,15 @@ if time_now >= '12:01' or time_now <= '12:59':
     print('''
 E-GP Systems. Status: ONLINE
     ''')
-    loading()
+    runall()
 elif time_now >= '17:01' or time_now <= '08:59':
     print('''
 E-GP Systems. Status: ONLINE
     ''')
-    loading()
+    runall()
 else:
     print('''
 E-GP Systems. Status: OFFLINE
     ''')
+
+print('Succeed to Complete.!')
