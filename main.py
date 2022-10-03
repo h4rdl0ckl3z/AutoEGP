@@ -326,14 +326,14 @@ if time_now >= '12:01' and time_now <= '12:59':
 E-GP Systems. Status: ONLINE
     ''')
     runall()
+    print('Succeed to Complete.!')
 elif time_now >= '17:01' and time_now <= '08:59':
     print('''
 E-GP Systems. Status: ONLINE
     ''')
     runall()
+    print('Succeed to Complete.!')
 else:
     print('''
 E-GP Systems. Status: OFFLINE
     ''')
-
-print('Succeed to Complete.!')
