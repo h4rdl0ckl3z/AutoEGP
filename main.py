@@ -1,6 +1,3 @@
-from ast import main
-
-
 def auto_egp():
 
     from urllib.request import urlopen
