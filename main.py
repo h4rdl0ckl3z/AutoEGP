@@ -1,3 +1,6 @@
+from ast import main
+
+
 def auto_egp():
 
     from urllib.request import urlopen
@@ -316,24 +319,27 @@ def runall():
     upload_access()
 
 
+def time_in_range(start, end, x):
+    """Return true if x is in the range [start, end]"""
+    if start <= end:
+        return start <= x <= end
+    else:
+        return start <= x or x <= end
+
+
+
 from datetime import datetime
 
 time_now = str(datetime.now().strftime('%H:%M'))
 # print(time_now)
 
-if time_now >= '12:01' and time_now <= '12:59':
+if time_in_range('17:01','08:59',time_now) or time_in_range('12:01','12:59',time_now):
     print('''
-E-GP Systems. Status: ONLINE
-    ''')
-    runall()
-    print('Succeed to Complete.!')
-elif time_now >= '17:01' and time_now <= '08:59':
-    print('''
-E-GP Systems. Status: ONLINE
+    E-GP Systems. Status: ONLINE
     ''')
     runall()
     print('Succeed to Complete.!')
 else:
     print('''
-E-GP Systems. Status: OFFLINE
+    E-GP Systems. Status: OFFLINE
     ''')
