@@ -95,8 +95,6 @@ def auto_egp():
                                     'pubY': []
                                 })
 
-                    date_egp = datetime
-
                     # get data
                     for rss in root:
                         for channel in rss:
