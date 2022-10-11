@@ -7,12 +7,11 @@ def auto_egp():
     import pandas as pd
     from datetime import datetime
     from tqdm.auto import tqdm
+    import mysql.connector
 
     today = datetime.now().strftime('%d%m%Y')
     tomonth = datetime.now().strftime('%B')
     toyear = datetime.now().strftime('%Y')
-    today_d = datetime.now().strftime('%d')
-    tomonth_m = datetime.now().strftime('%m')
 
     path_location = 'EGP/' + toyear + '/' + tomonth
 
@@ -28,18 +27,24 @@ def auto_egp():
     config_object = ConfigParser()
     config_object.read("config.ini")
 
-    access_info = config_object["DB_Access"]
-    user = access_info["username"]
-    passwd = access_info["passwd"]
-    access_path = access_info["database_path"]
+    mariadb_info = config_object["DB_MariaDB"]
+    username = mariadb_info["username"]
+    passwd = mariadb_info["passwd"]
+    hostname = mariadb_info["hostname"]
+    port = mariadb_info["port"]
+    db = mariadb_info["database"]
 
-    import pyodbc
+    conn = mysql.connector.connect(
+        host=hostname,
+        user=username,
+        password=passwd,
+        database=db,
+        port=port
+    )
 
-    conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + access_path + ';UID=' + user + ';PWD=' + passwd + '')
+
+    sql = "SELECT numid FROM `egp_id`"
     cursor = conn.cursor()
-
-    sql = "SELECT numID FROM EGP_ID"
-
     cursor.execute(sql)
 
     data = cursor.fetchall()
@@ -90,6 +95,8 @@ def auto_egp():
                                     'pubY': []
                                 })
 
+                    date_egp = datetime
+
                     # get data
                     for rss in root:
                         for channel in rss:
@@ -101,7 +108,15 @@ def auto_egp():
                                         pass
                                     else:
                                         # print(item.text)
-                                        list_test[item.tag].append(item.text)
+
+                                        if item.tag == 'pubDate':
+                                            list_test[item.tag].append(item.text)
+                                            pubDate_split = item.text.split('-')
+                                            list_test['pubD'].append(pubDate_split[2])
+                                            list_test['pubM'].append(pubDate_split[1])
+                                            list_test['pubY'].append(pubDate_split[0])
+                                        else:
+                                            list_test[item.tag].append(item.text)
                                 list_test['numID'].append(deptId)
                                 if anounceType == 'W0':
                                     list_test['pubT'].append(1)
@@ -121,9 +136,6 @@ def auto_egp():
                                     list_test['pubT'].append(8)
                                 else:       # B0
                                     list_test['pubT'].append(9)
-                                list_test['pubD'].append(today_d)
-                                list_test['pubM'].append(tomonth_m)
-                                list_test['pubY'].append(toyear)
 
                     # print(list_test)
 
@@ -139,34 +151,11 @@ def auto_egp():
                             df.to_csv(file_csv, index=False)
                 except ConnectionResetError as e:
                     print(e)
+                list_test.clear()
             except HTTPError as e:
                 print(e)
 
-
-
-def data_duplicate():
-
-    import pandas as pd
-    from datetime import datetime
-    import os
-
-    today = datetime.now().strftime('%d%m%Y')
-    tomonth = datetime.now().strftime('%B')
-    toyear = datetime.now().strftime('%Y')
-
-    path_location = 'EGP/' + toyear+ '/' + tomonth
-
-    file_csv = path_location + '/' + today + '.csv'
-
-    # ตัดข้อมูลซ้ำ
-    if os.path.isfile(file_csv) == True:
-        df = pd.read_csv(file_csv)
-        df.sort_values('link', inplace=True)
-        df.drop_duplicates(subset='link', inplace=True, keep=False)
-        # print(df)
-        df.to_csv(file_csv, index=False)
-    else:
-        print('No Directory')
+        list_test.clear()
 
 
 
@@ -241,65 +230,6 @@ def upload_mariadb():
 
 
 
-def upload_access():
-
-    import pandas as pd
-    from datetime import datetime
-    import os
-    from tqdm.auto import tqdm
-
-    from configparser import ConfigParser
-
-    #Read config.ini file
-    config_object = ConfigParser()
-    config_object.read("config.ini")
-
-    access_info = config_object["DB_Access"]
-    username = access_info["username"]
-    passwd = access_info["passwd"]
-    access_path = access_info["database_path"]
-
-    import pyodbc
-    conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + access_path + ';UID=' + username + ';PWD=' + passwd + '')
-
-    today = datetime.now().strftime('%d%m%Y')
-    tomonth = datetime.now().strftime('%B')
-    toyear = datetime.now().strftime('%Y')
-
-    path_location = 'EGP/' + toyear+ '/' + tomonth
-
-    file_csv = path_location + '/' + today + '.csv'
-
-    if os.path.isfile(file_csv) == True:
-        df = pd.read_csv(file_csv)
-        # print(df)
-        def loopcheck(link_):
-            sql = "SELECT * FROM EGP WHERE link='" + link_ + "'"
-            cursor = conn.cursor()
-            cursor.execute(sql)
-            data = cursor.fetchall()
-            cursor.close()
-            return data
-
-        for i in tqdm(range(len(df['link'])), desc='Processing', colour='GREEN', ncols=100):
-            # print(loopcheck(i))
-            if loopcheck(df['link'][i]) == []:
-                sql = "INSERT INTO EGP (title, link, pubDate, numID, pubT, pubD, pubM, pubY) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "')"
-                # print(sql)
-                cursor = conn.cursor()
-                cursor.execute(sql)
-                cursor.commit()
-                cursor.close()
-            # else:
-            #     print("NOT INSERT")
-    else:
-        print('No Directory')
-    
-    conn.close()
-
-
-
-
 
 
 print("""
@@ -311,10 +241,7 @@ print("""
 
 def runall():
     auto_egp()
-    from tqdm import trange
-    for i in trange(1, desc='Processing', colour='GREEN', ncols=100):
-        data_duplicate()
-    upload_access()
+    upload_mariadb()
 
 
 def time_in_range(start, end, x):
