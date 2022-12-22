@@ -70,11 +70,9 @@ def auto_egp():
             url_str = url + parameter_deptId + deptId + parameter_anounceType + anounceType
 
             try:
+                url_open = urlopen(url_str)
                 try:
-                    url_open = urlopen(url_str)
-
                     root = ET.parse(url_open).getroot()
-
                     # get title
                     for rss in root:
                         for channel in rss:
@@ -147,12 +145,11 @@ def auto_egp():
                             df.to_csv(file_csv, index=False, mode='a', header=False)
                         else:
                             df.to_csv(file_csv, index=False)
+
                 except ConnectionError as e:
                     print(e)
-                list_test.clear()
             except HTTPError as e:
                 print(e)
-
         list_test.clear()
 
 
