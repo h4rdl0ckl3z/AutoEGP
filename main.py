@@ -150,7 +150,7 @@ def auto_egp():
                     print(err)
             except HTTPError as err:
                 print(err)
-        list_test.clear()
+            list_test.clear()
 
 
 
