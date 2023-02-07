@@ -135,7 +135,7 @@ def auto_egp():
 
                 except ET.ParseError as err:
                     print(err)
-            except (URLError, HTTPError) as err:
+            except (URLError, HTTPError, ConnectionError) as err:
                 print(err)
     
     # print(list_test)
