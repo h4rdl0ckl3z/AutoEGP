@@ -139,7 +139,7 @@ def auto_egp():
                 print(err)
     
     # print(list_test)
-    print(len(list_test['title']), len(list_test['link']), len(list_test['numID']), len(list_test['pubD']), len(list_test['pubM']), len(list_test['pubT']), len(list_test['pubY']), len(list_test['pubDate']))
+    # print(len(list_test['title']), len(list_test['link']), len(list_test['numID']), len(list_test['pubD']), len(list_test['pubM']), len(list_test['pubT']), len(list_test['pubY']), len(list_test['pubDate']))
 
     df = pd.DataFrame(list_test)
 
