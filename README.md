@@ -19,33 +19,3 @@ Edit aliases.py
 
 
 # Add Data
-
-    # get title
-    for rss in root:
-        for channel in rss:
-            if channel.tag == 'item':
-                # print(channel.tag)
-                for item in channel:
-                    if item.tag == 'description' or item.tag == 'guid':
-                        pass
-                    else:
-                        list_test.update({
-                            item.tag: []
-                        })
-                list_test.update({
-                    'deptId': []
-                })
-
-    # get data
-    for rss in root:
-        for channel in rss:
-            if channel.tag == 'item':
-                # print(channel.tag)
-                for item in channel:
-                    # print(item.tag)
-                    if item.tag == 'description' or item.tag == 'guid':
-                        pass
-                    else:
-                        # print(item.text)
-                        list_test[item.tag].append(item.text)
-                list_test['deptId'].append(deptId)
