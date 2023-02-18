@@ -17,5 +17,54 @@ Edit aliases.py
     '874'                : 'cp874',
     'windows_874'        : 'cp874',
 
+# Add Title
 
+    list_test = {
+        'title': [],
+        'link': [],
+        'pubDate': [],
+        'numID': [],
+        'pubT': [],
+        'pubD': [],
+        'pubM': [],
+        'pubY': []
+    }
+    
 # Add Data
+
+    for root in tree.findall('./channel/item'):
+        if root.tag == 'item':
+            list_test['numID'].append(deptId)
+
+            if anounceType == 'W0':
+                list_test['pubT'].append(1)
+            elif anounceType == 'D1':
+                list_test['pubT'].append(2)
+            elif anounceType == 'P0':
+                list_test['pubT'].append(3)
+            elif anounceType == '15':
+                list_test['pubT'].append(4)
+            elif anounceType == 'D0':
+                list_test['pubT'].append(5)
+            elif anounceType == 'W1':
+                list_test['pubT'].append(6)
+            elif anounceType == 'D2':
+                list_test['pubT'].append(7)
+            elif anounceType == 'W2':
+                list_test['pubT'].append(8)
+            else:       # B0
+                list_test['pubT'].append(9)
+
+            for rss in root:
+                # print(rss.tag)
+                if rss.tag == 'description' or rss.tag == 'guid':
+                    pass
+                else:
+                    if rss.tag == 'pubDate':
+                        list_test[rss.tag].append(rss.text)
+                        pubDate_str = datetime.strptime(rss.text, '%Y-%m-%d').date()
+                        list_test['pubD'].append(pubDate_str.strftime('%d'))
+                        list_test['pubM'].append(pubDate_str.strftime('%m'))
+                        list_test['pubY'].append(pubDate_str.strftime('%Y'))
+                    else:
+                        list_test[rss.tag].append(rss.text)
