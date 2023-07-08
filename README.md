@@ -50,3 +50,6 @@ Edit aliases.py
                 deptId_str = deptId
                 deptId_str = deptId_str.replace('\n', '')
                 list_test['deptId'].append(deptId_str)
+
+
+# ตัวเต็มโปรดติดต่อ :)
