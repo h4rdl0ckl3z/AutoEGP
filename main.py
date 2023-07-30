@@ -252,7 +252,7 @@ def upload_access():
         df = pd.read_csv(file_csv)
         # print(df)
         def loopcheck(link_):
-            sql = "SELECT * FROM EGP WHERE link='" + link_ + "'"
+            sql = "SELECT * FROM EGP WHERE link='" + str(link_) + "'"
             cursor = conn.cursor()
             cursor.execute(sql)
             data = cursor.fetchall()
