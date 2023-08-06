@@ -73,6 +73,7 @@ Edit aliases.py
     apt install python3
     apt-get install python3-venv
     git clone https://github.com/h4rdl0ckl3z/AutoEGPV2.1.git
-    python3 -m venv env
     cd AutoEGPV2.1
+    python3 -m venv env
+    pip install -r requirements.txt
     chmod +x AutoEGP.sh
