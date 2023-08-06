@@ -79,6 +79,7 @@ Edit aliases.py
     python3 -m venv env
     pip install -r requirements.txt
     chmod +x AutoEGP.sh
+    ./AutoEGP.sh
     
 ## Fixed: lookuperror unknown encoding windows-874
 
