@@ -68,3 +68,4 @@ Edit aliases.py
                         list_test['pubY'].append(pubDate_str.strftime('%Y'))
                     else:
                         list_test[rss.tag].append(rss.text)
+# Linux Setup
