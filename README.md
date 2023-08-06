@@ -68,7 +68,9 @@ Edit aliases.py
                         list_test['pubY'].append(pubDate_str.strftime('%Y'))
                     else:
                         list_test[rss.tag].append(rss.text)
+
 # Linux Setup
+
     login with root
     apt install python3
     apt-get install python3-venv
@@ -77,3 +79,15 @@ Edit aliases.py
     python3 -m venv env
     pip install -r requirements.txt
     chmod +x AutoEGP.sh
+    
+## Fixed: lookuperror unknown encoding windows-874
+
+Location
+
+    /usr/lib/python[version]/encodings/aliases.py or /usr/lib64/python[version]/encodings/aliases.py
+    
+Edit aliases.py
+
+    # cp874 codec
+    '874'                : 'cp874',
+    'windows_874'        : 'cp874',
