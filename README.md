@@ -71,4 +71,5 @@ Edit aliases.py
 # Linux Setup
     login with root
     apt install python3
-    
+    apt-get install python3-venv
+    git clone 
