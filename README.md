@@ -69,3 +69,6 @@ Edit aliases.py
                     else:
                         list_test[rss.tag].append(rss.text)
 # Linux Setup
+    login with root
+    apt install python3
+    
