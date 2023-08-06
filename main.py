@@ -27,31 +27,31 @@ def auto_egp():
     config_object = ConfigParser()
     config_object.read("config.ini")
 
-    access_info = config_object["DB_Access"]
-    username = access_info["username"]
-    passwd = access_info["passwd"]
-    access_path = access_info["database_path"]
+    # access_info = config_object["DB_Access"]
+    # username = access_info["username"]
+    # passwd = access_info["passwd"]
+    # access_path = access_info["database_path"]
 
-    import pyodbc
-    conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + access_path + ';UID=' + username + ';PWD=' + passwd + '')
+    # import pyodbc
+    # conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + access_path + ';UID=' + username + ';PWD=' + passwd + '')
 
-    # mariadb_info = config_object["DB_MariaDB"]
-    # username = mariadb_info["username"]
-    # passwd = mariadb_info["passwd"]
-    # hostname = mariadb_info["hostname"]
-    # port = mariadb_info["port"]
-    # db = mariadb_info["database"]
+    mariadb_info = config_object["DB_MariaDB"]
+    username = mariadb_info["username"]
+    passwd = mariadb_info["passwd"]
+    hostname = mariadb_info["hostname"]
+    port = mariadb_info["port"]
+    db = mariadb_info["database"]
 
-    # conn = mysql.connector.connect(
-    #     host=hostname,
-    #     user=username,
-    #     password=passwd,
-    #     database=db,
-    #     port=port
-    # )
+    conn = mysql.connector.connect(
+        host=hostname,
+        user=username,
+        password=passwd,
+        database=db,
+        port=port
+    )
 
-    sql = "SELECT numID FROM EGP_ID"
-    # sql = "SELECT numid FROM `egp_id`"      # mariadb
+    # sql = "SELECT numID FROM EGP_ID"
+    sql = "SELECT numid FROM `egp_id`"      # mariadb
     cursor = conn.cursor()
     cursor.execute(sql)
 
@@ -91,6 +91,7 @@ def auto_egp():
                 res = urlopen(url_str)
 
                 try:
+                    
                     tree = ET.parse(res).getroot()
 
                     # get data
@@ -289,8 +290,8 @@ print("""
 
 def runall():
     auto_egp()
-    upload_access()
-    # upload_mariadb()
+    # upload_access()
+    upload_mariadb()
 
 
 def time_in_range(start, end, x):
