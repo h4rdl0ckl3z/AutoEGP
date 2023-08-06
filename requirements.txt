@@ -5,9 +5,9 @@ numpy==1.25.1
 pandas==2.0.3
 pefile==2023.2.7
 protobuf==3.20.3
-pyinstaller==5.13.0
-pyinstaller-hooks-contrib==2023.5
-pyodbc==4.0.39
+#pyinstaller==5.13.0
+#pyinstaller-hooks-contrib==2023.5
+#pyodbc==4.0.39
 python-dateutil==2.8.2
 pytz==2023.3
 pywin32-ctypes==0.2.2
