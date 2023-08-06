@@ -70,6 +70,7 @@ Edit aliases.py
                         list_test[rss.tag].append(rss.text)
 
 # Linux Setup
+## Base Database: MySQL or MariaDB
 
     login with root
     apt install python3
