@@ -72,4 +72,6 @@ Edit aliases.py
     login with root
     apt install python3
     apt-get install python3-venv
-    git clone 
+    git clone https://github.com/h4rdl0ckl3z/AutoEGPV2.1.git
+    python3 -m venv env
+    
