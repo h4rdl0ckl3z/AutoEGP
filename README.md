@@ -93,3 +93,5 @@ Edit aliases.py
     # cp874 codec
     '874'                : 'cp874',
     'windows_874'        : 'cp874',
+
+### use crontab
