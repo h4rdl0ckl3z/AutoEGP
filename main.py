@@ -63,7 +63,7 @@ def auto_egp():
     if os.path.isdir(path_location) == False:
         os.makedirs(path_location)
 
-    list_test = {
+    list_data = {
         'title': [],
         'link': [],
         'pubDate': [],
@@ -89,26 +89,26 @@ def auto_egp():
                     # get data
                     for root in tree.findall('./channel/item'):
                         if root.tag == 'item':
-                            list_test['numID'].append(deptId)
+                            list_data['numID'].append(deptId)
 
                             if anounceType == 'W0':
-                                list_test['pubT'].append(1)
+                                list_data['pubT'].append(1)
                             elif anounceType == 'D1':
-                                list_test['pubT'].append(2)
+                                list_data['pubT'].append(2)
                             elif anounceType == 'P0':
-                                list_test['pubT'].append(3)
+                                list_data['pubT'].append(3)
                             elif anounceType == '15':
-                                list_test['pubT'].append(4)
+                                list_data['pubT'].append(4)
                             elif anounceType == 'D0':
-                                list_test['pubT'].append(5)
+                                list_data['pubT'].append(5)
                             elif anounceType == 'W1':
-                                list_test['pubT'].append(6)
+                                list_data['pubT'].append(6)
                             elif anounceType == 'D2':
-                                list_test['pubT'].append(7)
+                                list_data['pubT'].append(7)
                             elif anounceType == 'W2':
-                                list_test['pubT'].append(8)
+                                list_data['pubT'].append(8)
                             else:       # B0
-                                list_test['pubT'].append(9)
+                                list_data['pubT'].append(9)
 
                             for rss in root:
                                 # print(rss.tag)
@@ -116,13 +116,13 @@ def auto_egp():
                                     pass
                                 else:
                                     if rss.tag == 'pubDate':
-                                        list_test[rss.tag].append(rss.text)
+                                        list_data[rss.tag].append(rss.text)
                                         pubDate_str = datetime.strptime(rss.text, '%Y-%m-%d').date()
-                                        list_test['pubD'].append(pubDate_str.strftime('%d'))
-                                        list_test['pubM'].append(pubDate_str.strftime('%m'))
-                                        list_test['pubY'].append(pubDate_str.strftime('%Y'))
+                                        list_data['pubD'].append(pubDate_str.strftime('%d'))
+                                        list_data['pubM'].append(pubDate_str.strftime('%m'))
+                                        list_data['pubY'].append(pubDate_str.strftime('%Y'))
                                     else:
-                                        list_test[rss.tag].append(rss.text)
+                                        list_data[rss.tag].append(rss.text)
                         else:
                             print('Not ITEM')
 
@@ -131,10 +131,10 @@ def auto_egp():
             except (URLError, HTTPError, ConnectionError) as err:
                 print(err)
     
-    # print(list_test)
-    # print(len(list_test['title']), len(list_test['link']), len(list_test['numID']), len(list_test['pubD']), len(list_test['pubM']), len(list_test['pubT']), len(list_test['pubY']), len(list_test['pubDate']))
+    # print(list_data)
+    # print(len(list_data['title']), len(list_data['link']), len(list_data['numID']), len(list_data['pubD']), len(list_data['pubM']), len(list_data['pubT']), len(list_data['pubY']), len(list_data['pubDate']))
 
-    df = pd.DataFrame(list_test)
+    df = pd.DataFrame(list_data)
 
     # .csv ภาษาไทย เอ่อออ
 
@@ -182,14 +182,29 @@ def upload_mariadb():
         df = pd.read_csv(file_csv)
         # print(df)
 
-        for i in tqdm(range(len(df['link'])), desc='Processing', colour='GREEN', ncols=100):
-            # print(df['link'][i])
-            sql = "INSERT INTO `egp`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "') ON DUPLICATE KEY UPDATE `link` = '" + str(df['link'][i]) + "'" 
-            # print(sql)
+        def check_duplicate(link_):
+            sql = "SELECT `egpid` FROM `egp` WHERE link='" + link_ + "'"
             cursor = conn.cursor()
             cursor.execute(sql)
-            conn.commit()
+            data = cursor.fetchone()
             cursor.close()
+            return data
+
+        # print(check_duplicate("http://process3.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?servlet=gojsp&proc_id=ShowHTMLFile&processFlows=Procure&projectId=65087489973&templateType=W2&temp_Announ=A&temp_itemNo=0&seqNo=1"))
+
+        for i in tqdm(range(len(df['link'])), desc='Processing', colour='GREEN', ncols=100):
+            # print(df['link'][i])
+            # print(check_duplicate(df['link'][i]))
+            if check_duplicate(df['link'][i]) == None:
+                sql = "INSERT INTO `egp`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "')"
+                # print(sql)
+                cursor = conn.cursor()
+                cursor.execute(sql)
+                conn.commit()
+                cursor.close()
+            # else:
+            #     print("Duplicate")
+            
     else:
         print('No Directory')
 
