@@ -31,8 +31,8 @@ CREATE TABLE `egp` (
   `pubd` varchar(255) DEFAULT NULL,
   `pubm` varchar(255) DEFAULT NULL,
   `puby` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`EGPID`,`title`) USING BTREE,
-  UNIQUE KEY `title` (`title`)
+  PRIMARY KEY (`EGPID`,`link`) USING BTREE,
+  UNIQUE KEY `link` (`link`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
