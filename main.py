@@ -182,28 +182,14 @@ def upload_mariadb():
         df = pd.read_csv(file_csv)
         # print(df)
 
-        def check_duplicate(link_):
-            sql = "SELECT `egpid` FROM `egp` WHERE link='" + link_ + "'"
-            cursor = conn.cursor()
-            cursor.execute(sql)
-            data = cursor.fetchone()
-            cursor.close()
-            return data
-
-        # print(check_duplicate("http://process3.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?servlet=gojsp&proc_id=ShowHTMLFile&processFlows=Procure&projectId=65087489973&templateType=W2&temp_Announ=A&temp_itemNo=0&seqNo=1"))
-
         for i in tqdm(range(len(df['link'])), desc='Processing', colour='GREEN', ncols=100):
             # print(df['link'][i])
-            # print(check_duplicate(df['link'][i]))
-            if check_duplicate(df['link'][i]) == None:
-                sql = "INSERT INTO `egp`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "')"
-                # print(sql)
-                cursor = conn.cursor()
-                cursor.execute(sql)
-                conn.commit()
-                cursor.close()
-            # else:
-            #     print("Duplicate")
+            sql = "INSERT INTO `egp`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "') ON DUPLICATE KEY UPDATE `title` = '" + str(df['title'][i]) + "'" 
+            # print(sql)
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            conn.commit()
+            cursor.close()
             
     else:
         print('No Directory')
