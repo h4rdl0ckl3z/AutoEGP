@@ -27,14 +27,6 @@ def auto_egp():
     config_object = ConfigParser()
     config_object.read("config.ini")
 
-    # access_info = config_object["DB_Access"]
-    # username = access_info["username"]
-    # passwd = access_info["passwd"]
-    # access_path = access_info["database_path"]
-
-    # import pyodbc
-    # conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + access_path + ';UID=' + username + ';PWD=' + passwd + '')
-
     mariadb_info = config_object["DB_MariaDB"]
     username = mariadb_info["username"]
     passwd = mariadb_info["passwd"]
