@@ -97,19 +97,4 @@ CREATE TABLE `egp_id`  (
 -- ----------------------------
 INSERT INTO `egp_id` VALUES (1, 'มหาวิทยาลัยราชภัฏสุราษฏร์ธานี', '1484217300', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
--- ----------------------------
--- Table structure for test
--- ----------------------------
-DROP TABLE IF EXISTS `test`;
-CREATE TABLE `test`  (
-  `test_id` int NOT NULL,
-  `test_num` enum('0','1','2','3','4','5') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  PRIMARY KEY (`test_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of test
--- ----------------------------
-INSERT INTO `test` VALUES (1, '1');
-
 SET FOREIGN_KEY_CHECKS = 1;
