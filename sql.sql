@@ -11,7 +11,7 @@
  Target Server Version : 101106 (10.11.6-MariaDB-0+deb12u1)
  File Encoding         : 65001
 
- Date: 12/08/2024 23:24:18
+ Date: 13/08/2024 00:17:34
 */
 
 SET NAMES utf8mb4;
@@ -24,15 +24,15 @@ DROP TABLE IF EXISTS `egp`;
 CREATE TABLE `egp` (
   `EGPID` int(11) NOT NULL AUTO_INCREMENT,
   `numID` varchar(255) DEFAULT NULL,
-  `title` varchar(255) DEFAULT NULL,
-  `link` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `link` varchar(255) DEFAULT NULL,
   `pubDate` varchar(255) DEFAULT NULL,
   `pubt` varchar(255) DEFAULT NULL,
   `pubd` varchar(255) DEFAULT NULL,
   `pubm` varchar(255) DEFAULT NULL,
   `puby` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`EGPID`,`link`) USING BTREE,
-  UNIQUE KEY `link` (`link`)
+  PRIMARY KEY (`EGPID`,`title`) USING BTREE,
+  UNIQUE KEY `title` (`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
