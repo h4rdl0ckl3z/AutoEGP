@@ -193,6 +193,13 @@ def upload_mariadb():
             
     else:
         print('No Directory')
+    
+    # reset auto increment
+    sql2 = "ALTER TABLE `egp` AUTO_INCREMENT = 1"
+    cursor2 = conn.cursor()
+    cursor2.execute(sql2)
+    conn.commit()
+    cursor2.close()
 
     conn.close()
 
@@ -208,7 +215,7 @@ print("""
 
 
 def runall():
-    auto_egp()
+    # auto_egp()
     upload_mariadb()
 
 
