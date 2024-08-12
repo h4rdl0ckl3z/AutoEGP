@@ -190,92 +190,18 @@ def upload_mariadb():
         df = pd.read_csv(file_csv)
         # print(df)
 
-        def loopcheck(link_):
-            sql = "SELECT * FROM `egp` WHERE link='" + link_ + "'"
-            cursor = conn.cursor()
-            cursor.execute(sql)
-            data = cursor.fetchall()
-            cursor.close()
-            return data
-
-        # print(loopcheck("http://process3.gprocurement.go.th/egp2procmainWeb/jsp/procsearch.sch?servlet=gojsp&proc_id=ShowHTMLFile&processFlows=Procure&projectId=65087489973&templateType=W2&temp_Announ=A&temp_itemNo=0&seqNo=1"))
-
         for i in tqdm(range(len(df['link'])), desc='Processing', colour='GREEN', ncols=100):
-            # print(loopcheck(i))
-            if loopcheck(df['link'][i]) == []:
-                # print("INSERT")
-                # print(df['link'][i])
-                sql = "INSERT INTO `egp`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "')"
-                # print(sql)
-                cursor = conn.cursor()
-                cursor.execute(sql)
-                conn.commit()
-                cursor.close()
-            # else:
-            #     print("NOT INSERT")
-    else:
-        print('No Directory')
-
-    conn.close()
-
-
-
-def upload_access():
-
-    import pandas as pd
-    from datetime import datetime
-    import os
-    from tqdm.auto import tqdm
-
-    from configparser import ConfigParser
-
-    #Read config.ini file
-    config_object = ConfigParser()
-    config_object.read("config.ini")
-
-    access_info = config_object["DB_Access"]
-    username = access_info["username"]
-    passwd = access_info["passwd"]
-    access_path = access_info["database_path"]
-
-    import pyodbc
-    conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + access_path + ';UID=' + username + ';PWD=' + passwd + '')
-
-    today = datetime.now().strftime('%d%m%Y')
-    tomonth = datetime.now().strftime('%B')
-    toyear = datetime.now().strftime('%Y')
-
-    path_location = 'EGP/' + toyear+ '/' + tomonth
-
-    file_csv = path_location + '/' + today + '.csv'
-
-    if os.path.isfile(file_csv) == True:
-        df = pd.read_csv(file_csv)
-        # print(df)
-        def loopcheck(link_):
-            sql = "SELECT * FROM EGP WHERE link='" + str(link_) + "'"
+            # print(df['link'][i])
+            sql = "INSERT INTO `egp`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "') ON DUPLICATE KEY UPDATE `link` = '" + str(df['link'][i]) + "'" 
+            # print(sql)
             cursor = conn.cursor()
             cursor.execute(sql)
-            data = cursor.fetchall()
+            conn.commit()
             cursor.close()
-            return data
-
-        for i in tqdm(range(len(df['link'])), desc='Upload Data', colour='GREEN', ncols=100):
-            # print(loopcheck(i))
-            if loopcheck(df['link'][i]) == []:
-                sql = "INSERT INTO EGP (title, link, pubDate, numID, pubT, pubD, pubM, pubY) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "')"
-                # print(sql)
-                cursor = conn.cursor()
-                cursor.execute(sql)
-                cursor.commit()
-                cursor.close()
-            # else:
-            #     print("NOT INSERT")
     else:
         print('No Directory')
 
     conn.close()
-
 
 
 
@@ -290,7 +216,6 @@ print("""
 
 def runall():
     auto_egp()
-    # upload_access()
     upload_mariadb()
 
 
