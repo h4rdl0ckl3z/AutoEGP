@@ -36,7 +36,7 @@ class auto_egp:
     
     def egpid(self):
         conn = connect_db().condb
-        sql = "SELECT numid FROM `egp_id`"
+        sql = "SELECT numid FROM `customers`"
         cursor = conn.cursor()
         cursor.execute(sql)
         data = cursor.fetchall()
@@ -52,6 +52,7 @@ class auto_egp:
         from urllib.request import urlopen
         from urllib.error import URLError, HTTPError
         import xml.etree.ElementTree as ET
+        from datetime import datetime
 
         url = 'http://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml'
         parameter_deptId = '?deptId='
@@ -64,7 +65,10 @@ class auto_egp:
             'link': [],
             'pubDate': [],
             'numID': [],
-            'pubT': []
+            'pubT': [],
+            'pubD': [],
+            'pubM': [],
+            'pubY': []
         }
 
         for anounceType in anounceType_:
@@ -101,7 +105,14 @@ class auto_egp:
                                 if rss.tag == 'description' or rss.tag == 'guid':
                                     pass
                                 else:
-                                    self.list_data[rss.tag].append(rss.text)
+                                    if rss.tag == 'pubDate':
+                                        self.list_data[rss.tag].append(rss.text)
+                                        pubDate_str = datetime.strptime(rss.text, '%Y-%m-%d').date()
+                                        self.list_data['pubD'].append(pubDate_str.strftime('%d'))
+                                        self.list_data['pubM'].append(pubDate_str.strftime('%m'))
+                                        self.list_data['pubY'].append(pubDate_str.strftime('%Y'))
+                                    else:
+                                        self.list_data[rss.tag].append(rss.text)
                         else:
                             print('No ITEMS')
 
@@ -113,7 +124,7 @@ class auto_egp:
     def upload(self):
         conn = connect_db().condb
         for i in range(len(self.list_data['link'])):
-            sql = "INSERT INTO `egp`(`title`, `link`, `pubDate`, `numID`, `pubT`) VALUES ('" + str(self.list_data['title'][i]) + "','" + str(self.list_data['link'][i]) + "','" + str(self.list_data['pubDate'][i]) + "','" + str(self.list_data['numID'][i]) + "','" + str(self.list_data['pubT'][i]) + "') ON DUPLICATE KEY UPDATE `title` = '" + str(self.list_data['title'][i]) + "'" 
+            sql = "INSERT INTO `egps`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(self.list_data['title'][i]) + "','" + str(self.list_data['link'][i]) + "','" + str(self.list_data['pubDate'][i]) + "','" + str(self.list_data['numID'][i]) + "','" + str(self.list_data['pubT'][i]) + "','" + str(self.list_data['pubD'][i]) + "','" + str(self.list_data['pubM'][i]) + "','" + str(self.list_data['pubY'][i]) + "') ON DUPLICATE KEY UPDATE `title` = '" + str(self.list_data['title'][i]) + "'" 
             cursor = conn.cursor()
             cursor.execute(sql)
             conn.commit()
@@ -121,7 +132,7 @@ class auto_egp:
 
     def reset_id(self):
         conn = connect_db().condb
-        sql = "ALTER TABLE `egp` AUTO_INCREMENT = 1"
+        sql = "ALTER TABLE `egps` AUTO_INCREMENT = 1"
         cursor = conn.cursor()
         cursor.execute(sql)
         conn.commit()
