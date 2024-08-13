@@ -23,10 +23,7 @@ Edit aliases.py
         'link': [],
         'pubDate': [],
         'numID': [],
-        'pubT': [],
-        'pubD': [],
-        'pubM': [],
-        'pubY': []
+        'pubT': []
     }
     
 # Add Data
@@ -59,14 +56,7 @@ Edit aliases.py
                 if rss.tag == 'description' or rss.tag == 'guid':
                     pass
                 else:
-                    if rss.tag == 'pubDate':
-                        list_test[rss.tag].append(rss.text)
-                        pubDate_str = datetime.strptime(rss.text, '%Y-%m-%d').date()
-                        list_test['pubD'].append(pubDate_str.strftime('%d'))
-                        list_test['pubM'].append(pubDate_str.strftime('%m'))
-                        list_test['pubY'].append(pubDate_str.strftime('%Y'))
-                    else:
-                        list_test[rss.tag].append(rss.text)
+                    list_test[rss.tag].append(rss.text)
 
 # Linux Setup
 ## Base Database: MySQL or MariaDB
