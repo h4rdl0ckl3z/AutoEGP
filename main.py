@@ -1,248 +1,148 @@
-def auto_egp():
+class connect_db:
+    def __init__(self):
+        self.config_db()
+        self.connect()
+    
+    def config_db(self):
+        from configparser import ConfigParser
 
-    from urllib.request import urlopen
-    from urllib.error import URLError, HTTPError
-    import xml.etree.ElementTree as ET
-    import os
-    import pandas as pd
-    from datetime import datetime
-    from tqdm.auto import tqdm
-    import mysql.connector
+        config_object = ConfigParser()
+        config_object.read("config.ini")
 
-    today = datetime.now().strftime('%d%m%Y')
-    tomonth = datetime.now().strftime('%B')
-    toyear = datetime.now().strftime('%Y')
+        mariadb_info = config_object["DB_MariaDB"]
+        self.username = mariadb_info["username"]
+        self.passwd = mariadb_info["passwd"]
+        self.hostname = mariadb_info["hostname"]
+        self.port = mariadb_info["port"]
+        self.database = mariadb_info["database"]
+    
+    def connect(self):
+        import mysql.connector
+        self.condb = mysql.connector.connect(
+            host=self.hostname,
+            user=self.username,
+            password=self.passwd,
+            database=self.database,
+            port=self.port
+        )
 
-    path_location = 'EGP/' + toyear + '/' + tomonth
-
-    file_csv = path_location + '/' + today + '.csv'
-
-    url = 'http://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml'
-    parameter_deptId = '?deptId='
-    parameter_anounceType = '&anounceType='
-
-    from configparser import ConfigParser
-
-    #Read config.ini file
-    config_object = ConfigParser()
-    config_object.read("config.ini")
-
-    mariadb_info = config_object["DB_MariaDB"]
-    username = mariadb_info["username"]
-    passwd = mariadb_info["passwd"]
-    hostname = mariadb_info["hostname"]
-    port = mariadb_info["port"]
-    db = mariadb_info["database"]
-
-    conn = mysql.connector.connect(
-        host=hostname,
-        user=username,
-        password=passwd,
-        database=db,
-        port=port
-    )
-
-    # sql = "SELECT numID FROM EGP_ID"
-    sql = "SELECT numid FROM `egp_id`"      # mariadb
-    cursor = conn.cursor()
-    cursor.execute(sql)
-
-    data = cursor.fetchall()
-    # print(data)
-    deptId_ = []
-    for i in data:
-        # print(i)
-        for _i in i:
-            deptId_.append(str(_i))
-            
-    cursor.close()
-    conn.close()
-
-    anounceType_ = ['W0', 'W2', 'B0', 'D0', 'D1', 'D2', 'P0', 'W1', '15']
-
-    if os.path.isdir(path_location) == False:
-        os.makedirs(path_location)
-
-    list_data = {
-        'title': [],
-        'link': [],
-        'pubDate': [],
-        'numID': [],
-        'pubT': [],
-        'pubD': [],
-        'pubM': [],
-        'pubY': []
-    }
-
-    for anounceType in anounceType_:
-        for deptId in tqdm(deptId_, desc=f'Pull e-GP {anounceType}', colour='GREEN', ncols=100):
-            url_str = url + parameter_deptId + deptId + parameter_anounceType + anounceType
-            # print(url_str)
-            try:
+class auto_egp:
+    def __init__(self):
+        self.egpid()
+        self.egp()
+        self.upload()
+        self.reset_id()
+        self.backup()
+    
+    def egpid(self):
+        conn = connect_db().condb
+        sql = "SELECT numid FROM `egp_id`"
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        data = cursor.fetchall()
+        self.deptId_ = []
+        for i in data:
+            for j in i:
+                self.deptId_.append(str(j))
                 
+        cursor.close()
+        conn.close()
+
+    def egp(self):
+        from urllib.request import urlopen
+        from urllib.error import URLError, HTTPError
+        import xml.etree.ElementTree as ET
+
+        url = 'http://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml'
+        parameter_deptId = '?deptId='
+        parameter_anounceType = '&anounceType='
+
+        anounceType_ = ['W0', 'W2', 'B0', 'D0', 'D1', 'D2', 'P0', 'W1', '15']
+
+        self.list_data = {
+            'title': [],
+            'link': [],
+            'pubDate': [],
+            'numID': [],
+            'pubT': []
+        }
+
+        for anounceType in anounceType_:
+            for deptId in self.deptId_:
+                url_str = url + parameter_deptId + deptId + parameter_anounceType + anounceType
+            try:
                 res = urlopen(url_str)
-
                 try:
-                    
                     tree = ET.parse(res).getroot()
-
-                    # get data
                     for root in tree.findall('./channel/item'):
                         if root.tag == 'item':
-                            list_data['numID'].append(deptId)
+                            self.list_data['numID'].append(deptId)
 
                             if anounceType == 'W0':
-                                list_data['pubT'].append(1)
+                                self.list_data['pubT'].append(1)
                             elif anounceType == 'D1':
-                                list_data['pubT'].append(2)
+                                self.list_data['pubT'].append(2)
                             elif anounceType == 'P0':
-                                list_data['pubT'].append(3)
+                                self.list_data['pubT'].append(3)
                             elif anounceType == '15':
-                                list_data['pubT'].append(4)
+                                self.list_data['pubT'].append(4)
                             elif anounceType == 'D0':
-                                list_data['pubT'].append(5)
+                                self.list_data['pubT'].append(5)
                             elif anounceType == 'W1':
-                                list_data['pubT'].append(6)
+                                self.list_data['pubT'].append(6)
                             elif anounceType == 'D2':
-                                list_data['pubT'].append(7)
+                                self.list_data['pubT'].append(7)
                             elif anounceType == 'W2':
-                                list_data['pubT'].append(8)
+                                self.list_data['pubT'].append(8)
                             else:       # B0
-                                list_data['pubT'].append(9)
+                                self.list_data['pubT'].append(9)
 
                             for rss in root:
-                                # print(rss.tag)
-                                if rss.tag == 'description' or rss.tag == 'guid':
-                                    pass
-                                else:
-                                    if rss.tag == 'pubDate':
-                                        list_data[rss.tag].append(rss.text)
-                                        pubDate_str = datetime.strptime(rss.text, '%Y-%m-%d').date()
-                                        list_data['pubD'].append(pubDate_str.strftime('%d'))
-                                        list_data['pubM'].append(pubDate_str.strftime('%m'))
-                                        list_data['pubY'].append(pubDate_str.strftime('%Y'))
-                                    else:
-                                        list_data[rss.tag].append(rss.text)
+                                if rss.tag != 'description' or rss.tag != 'guid':
+                                    self.list_data[rss.tag].append(rss.text)
                         else:
-                            print('Not ITEM')
+                            print('No ITEMS')
 
                 except ET.ParseError as err:
                     print(err)
             except (URLError, HTTPError, ConnectionError) as err:
                 print(err)
-    
-    # print(list_data)
-    # print(len(list_data['title']), len(list_data['link']), len(list_data['numID']), len(list_data['pubD']), len(list_data['pubM']), len(list_data['pubT']), len(list_data['pubY']), len(list_data['pubDate']))
-
-    df = pd.DataFrame(list_data)
-
-    # .csv ภาษาไทย เอ่อออ
-
-    if os.path.isfile(file_csv) == False:
-        df.to_csv(file_csv, index=False, mode='a')
-
-
-
-def upload_mariadb():
-
-    import mysql.connector
-    import pandas as pd
-    from datetime import datetime
-    import os
-    from tqdm.auto import tqdm
-
-    from configparser import ConfigParser
-    config_object = ConfigParser()
-    config_object.read("config.ini")
-
-    mariadb_info = config_object["DB_MariaDB"]
-    username = mariadb_info["username"]
-    passwd = mariadb_info["passwd"]
-    hostname = mariadb_info["hostname"]
-    port = mariadb_info["port"]
-    db = mariadb_info["database"]
-
-    conn = mysql.connector.connect(
-        host=hostname,
-        user=username,
-        password=passwd,
-        database=db,
-        port=port
-    )
-
-    today = datetime.now().strftime('%d%m%Y')
-    tomonth = datetime.now().strftime('%B')
-    toyear = datetime.now().strftime('%Y')
-
-    path_location = 'EGP/' + toyear + '/' + tomonth
-
-    file_csv = path_location + '/' + today + '.csv'
-
-    if os.path.isfile(file_csv) == True:
-        df = pd.read_csv(file_csv)
-        # print(df)
-
-        for i in tqdm(range(len(df['link'])), desc='Processing', colour='GREEN', ncols=100):
-            # print(df['link'][i])
-            sql = "INSERT INTO `egp`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(df['title'][i]) + "','" + str(df['link'][i]) + "','" + str(df['pubDate'][i]) + "','" + str(df['numID'][i]) + "','" + str(df['pubT'][i]) + "','" + str(df['pubD'][i]) + "','" + str(df['pubM'][i]) + "','" + str(df['pubY'][i]) + "') ON DUPLICATE KEY UPDATE `title` = '" + str(df['title'][i]) + "'" 
-            # print(sql)
+            
+    def upload(self):
+        conn = connect_db().condb
+        for i in range(len(self.list_data['link'])):
+            sql = "INSERT INTO `egp`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(self.list_data['title'][i]) + "','" + str(self.list_data['link'][i]) + "','" + str(self.list_data['pubDate'][i]) + "','" + str(self.list_data['numID'][i]) + "','" + str(self.list_data['pubT'][i]) + "','" + str(self.list_data['pubD'][i]) + "','" + str(self.list_data['pubM'][i]) + "','" + str(self.list_data['pubY'][i]) + "') ON DUPLICATE KEY UPDATE `title` = '" + str(self.list_data['title'][i]) + "'" 
             cursor = conn.cursor()
             cursor.execute(sql)
             conn.commit()
             cursor.close()
-            
-    else:
-        print('No Directory')
-    
-    # reset auto increment
-    sql2 = "ALTER TABLE `egp` AUTO_INCREMENT = 1"
-    cursor2 = conn.cursor()
-    cursor2.execute(sql2)
-    conn.commit()
-    cursor2.close()
 
-    conn.close()
+    def backup(self):
+        from datetime import datetime
+        today = datetime.now().strftime('%d%m%Y')
+        tomonth = datetime.now().strftime('%B')
+        toyear = datetime.now().strftime('%Y')
 
+        path_location = 'EGP/' + toyear + '/' + tomonth
 
+        file_csv = path_location + '/' + today + '.csv'
 
+        import pandas as pd
 
+        df = pd.DataFrame(self.list_data)
 
-print("""
+        from os.path import isfile
+        if isfile(file_csv) == False:
+            df.to_csv(file_csv, index=False, mode='a')
 
-                            AutoEGP By Avatart0Dev :)
-
-""")
-
-
-def runall():
-    # auto_egp()
-    upload_mariadb()
-
-
-def time_in_range(start, end, x):
-    """Return true if x is in the range [start, end]"""
-    if start <= end:
-        return start <= x <= end
-    else:
-        return start <= x or x <= end
+    def reset_id(self):
+        conn = connect_db().condb
+        sql = "ALTER TABLE `egp` AUTO_INCREMENT = 1"
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        conn.commit()
+        cursor.close()
+        conn.close()
 
 if __name__ == '__main__':
-
-    from datetime import datetime
-
-    time_now = str(datetime.now().strftime('%H:%M'))
-    # print(time_now)
-
-    if time_in_range('17:01','08:59',time_now) or time_in_range('12:01','12:59',time_now):
-        print('''
-        E-GP Systems. Status: ONLINE
-        ''')
-        from time import time
-        start = time()
-        runall()
-        end = time()
-        print('Succeed to Complete.!', end-start)
-    else:
-        print('''
-        E-GP Systems. Status: OFFLINE
-        ''')
+    auto_egp()
