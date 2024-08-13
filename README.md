@@ -1,4 +1,4 @@
-# AutoEGPV2.1 Python ≥3.8 (STSBBS)
+# AutoEGPV2.2 Python ≥3.8 (STSBBS)
 
 # How to install Packages
     pip install -r requirements.txt
