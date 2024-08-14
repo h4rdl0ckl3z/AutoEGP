@@ -9,12 +9,12 @@ class connect_db:
         config_object = ConfigParser()
         config_object.read("config.ini")
 
-        mariadb_info = config_object["DB_MariaDB"]
-        self.username = mariadb_info["username"]
-        self.passwd = mariadb_info["passwd"]
-        self.hostname = mariadb_info["hostname"]
-        self.port = mariadb_info["port"]
-        self.database = mariadb_info["database"]
+        mysql_info = config_object["DB_MYSQL"]
+        self.username = mysql_info["username"]
+        self.passwd = mysql_info["passwd"]
+        self.hostname = mysql_info["hostname"]
+        self.port = mysql_info["port"]
+        self.database = mysql_info["database"]
     
     def connect(self):
         import mysql.connector
