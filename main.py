@@ -9,12 +9,12 @@ class connect_db:
         config_object = ConfigParser()
         config_object.read("config.ini")
 
-        mysql_info = config_object["DB_MYSQL"]
-        self.username = mysql_info["username"]
-        self.passwd = mysql_info["passwd"]
-        self.hostname = mysql_info["hostname"]
-        self.port = mysql_info["port"]
-        self.database = mysql_info["database"]
+        mariadb_info = config_object["DB_MariaDB"]
+        self.username = mariadb_info["username"]
+        self.passwd = mariadb_info["passwd"]
+        self.hostname = mariadb_info["hostname"]
+        self.port = mariadb_info["port"]
+        self.database = mariadb_info["database"]
     
     def connect(self):
         import mysql.connector
@@ -74,57 +74,57 @@ class auto_egp:
         for anounceType in anounceType_:
             for deptId in self.deptId_:
                 url_str = url + parameter_deptId + deptId + parameter_anounceType + anounceType
-            try:
-                res = urlopen(url_str)
                 try:
-                    tree = ET.parse(res).getroot()
-                    for root in tree.findall('./channel/item'):
-                        if root.tag == 'item':
-                            self.list_data['numID'].append(deptId)
+                    res = urlopen(url_str)
+                    try:
+                        tree = ET.parse(res).getroot()
+                        for root in tree.findall('./channel/item'):
+                            if root.tag == 'item':
+                                self.list_data['numID'].append(deptId)
 
-                            if anounceType == 'W0':
-                                self.list_data['pubT'].append(1)
-                            elif anounceType == 'D1':
-                                self.list_data['pubT'].append(2)
-                            elif anounceType == 'P0':
-                                self.list_data['pubT'].append(3)
-                            elif anounceType == '15':
-                                self.list_data['pubT'].append(4)
-                            elif anounceType == 'D0':
-                                self.list_data['pubT'].append(5)
-                            elif anounceType == 'W1':
-                                self.list_data['pubT'].append(6)
-                            elif anounceType == 'D2':
-                                self.list_data['pubT'].append(7)
-                            elif anounceType == 'W2':
-                                self.list_data['pubT'].append(8)
-                            else:       # B0
-                                self.list_data['pubT'].append(9)
+                                if anounceType == 'W0':
+                                    self.list_data['pubT'].append(1)
+                                elif anounceType == 'D1':
+                                    self.list_data['pubT'].append(2)
+                                elif anounceType == 'P0':
+                                    self.list_data['pubT'].append(3)
+                                elif anounceType == '15':
+                                    self.list_data['pubT'].append(4)
+                                elif anounceType == 'D0':
+                                    self.list_data['pubT'].append(5)
+                                elif anounceType == 'W1':
+                                    self.list_data['pubT'].append(6)
+                                elif anounceType == 'D2':
+                                    self.list_data['pubT'].append(7)
+                                elif anounceType == 'W2':
+                                    self.list_data['pubT'].append(8)
+                                else:       # B0
+                                    self.list_data['pubT'].append(9)
 
-                            for rss in root:
-                                if rss.tag == 'description' or rss.tag == 'guid':
-                                    pass
-                                else:
-                                    if rss.tag == 'pubDate':
-                                        self.list_data[rss.tag].append(rss.text)
-                                        pubDate_str = datetime.strptime(rss.text, '%Y-%m-%d').date()
-                                        self.list_data['pubD'].append(pubDate_str.strftime('%d'))
-                                        self.list_data['pubM'].append(pubDate_str.strftime('%m'))
-                                        self.list_data['pubY'].append(pubDate_str.strftime('%Y'))
+                                for rss in root:
+                                    if rss.tag == 'description' or rss.tag == 'guid':
+                                        pass
                                     else:
-                                        self.list_data[rss.tag].append(rss.text)
-                        else:
-                            print('No ITEMS')
+                                        if rss.tag == 'pubDate':
+                                            self.list_data[rss.tag].append(rss.text)
+                                            pubDate_str = datetime.strptime(rss.text, '%Y-%m-%d').date()
+                                            self.list_data['pubD'].append(pubDate_str.strftime('%d'))
+                                            self.list_data['pubM'].append(pubDate_str.strftime('%m'))
+                                            self.list_data['pubY'].append(pubDate_str.strftime('%Y'))
+                                        else:
+                                            self.list_data[rss.tag].append(rss.text)
+                            else:
+                                print('No ITEMS')
 
-                except ET.ParseError as err:
+                    except ET.ParseError as err:
+                        print(err)
+                except (URLError, HTTPError, ConnectionError) as err:
                     print(err)
-            except (URLError, HTTPError, ConnectionError) as err:
-                print(err)
             
     def upload(self):
         conn = connect_db().condb
         for i in range(len(self.list_data['link'])):
-            sql = "INSERT INTO `egps`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(self.list_data['title'][i]) + "','" + str(self.list_data['link'][i]) + "','" + str(self.list_data['pubDate'][i]) + "','" + str(self.list_data['numID'][i]) + "','" + str(self.list_data['pubT'][i]) + "','" + str(self.list_data['pubD'][i]) + "','" + str(self.list_data['pubM'][i]) + "','" + str(self.list_data['pubY'][i]) + "') ON DUPLICATE KEY UPDATE `title` = '" + str(self.list_data['title'][i]) + "'" 
+            sql = "INSERT INTO `egps`(`title`, `link`, `pubDate`, `numID`, `pubT`, `pubD`, `pubM`, `pubY`) VALUES ('" + str(self.list_data['title'][i]) + "','" + str(self.list_data['link'][i]) + "','" + str(self.list_data['pubDate'][i]) + "','" + str(self.list_data['numID'][i]) + "','" + str(self.list_data['pubT'][i]) + "','" + str(self.list_data['pubD'][i]) + "','" + str(self.list_data['pubM'][i]) + "','" + str(self.list_data['pubY'][i]) + "') ON DUPLICATE KEY UPDATE `link` = '" + str(self.list_data['link'][i]) + "'" 
             cursor = conn.cursor()
             cursor.execute(sql)
             conn.commit()
@@ -157,8 +157,12 @@ class auto_egp:
         from os import makedirs
         if isdir(path_location) == False:
             makedirs(path_location)
-            if isfile(file_csv) == False:
-                df.to_csv(file_csv, index=False, mode='a')
+        if isfile(file_csv) == False:
+            df.to_csv(file_csv, index=False, mode='a')
 
 if __name__ == '__main__':
+    from time import time
+    start = time()
     auto_egp()
+    end = time()
+    print('Succeed to Complete.!', end-start)
