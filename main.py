@@ -77,7 +77,7 @@ class auto_egp:
                 try:
                     res = urlopen(url_str)
                     try:
-                        tree = ET.parse(source=res, parser=ET.XMLParser(encoding='cp874')).getroot()
+                        tree = ET.parse(res).getroot()
                         for root in tree.findall('./channel/item'):
                             if root.tag == 'item':
                                 self.list_data['numID'].append(deptId)
