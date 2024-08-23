@@ -40,10 +40,10 @@ class auto_egp:
         cursor = conn.cursor()
         cursor.execute(sql)
         data = cursor.fetchall()
-        self.deptId_ = []
+        self.dept_ids = []
         for i in data:
             for j in i:
-                self.deptId_.append(str(j))
+                self.dept_ids.append(str(j))
                 
         cursor.close()
         conn.close()
@@ -67,7 +67,7 @@ class auto_egp:
 
         try:
             for anounce_type in anounce_types:
-                for dept_id in dept_ids:
+                for dept_id in self.dept_ids:
                     url = f"{base_url}?deptId={dept_id}&anounceType={anounce_type}"
                     res = urlopen(url)
                     tree = ET.parse(source=res, parser=ET.XMLParser(encoding='cp874')).getroot()
