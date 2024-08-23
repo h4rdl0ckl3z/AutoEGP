@@ -57,7 +57,7 @@ class auto_egp:
         base_url = 'http://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml'
         anounce_types = ['W0', 'W2', 'B0', 'D0', 'D1', 'D2', 'P0', 'W1', '15']
 
-        list_data = {
+        self.list_data = {
             'title': [],
             'link': [],
             'pubDate': [],
@@ -72,11 +72,11 @@ class auto_egp:
                     res = urlopen(url)
                     tree = ET.parse(source=res, parser=ET.XMLParser(encoding='cp874')).getroot()
                     for root in tree.findall('./channel/item'):
-                        list_data['egpid'].append(dept_id)
-                        list_data['anounceType'].append(anounce_type)
+                        self.list_data['egpid'].append(dept_id)
+                        self.list_data['anounceType'].append(anounce_type)
                         for rss in root:
                             if rss.tag not in ('description', 'guid'):
-                                list_data[rss.tag].append(rss.text)
+                                self.list_data[rss.tag].append(rss.text)
         except (URLError, HTTPError, ConnectionError) as err:
             print(f"Error fetching data: {err}")
             
