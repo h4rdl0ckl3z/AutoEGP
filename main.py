@@ -73,7 +73,7 @@ class auto_egp:
             'title': [],
             'link': [],
             'pubDate': [],
-            'anounceType': [],
+            'pubT': [],
             'numID': []
         }
 
