@@ -30,9 +30,9 @@ class auto_egp:
     def __init__(self):
         self.egpid()
         self.egp()
+        self.backup()
         self.upload()
         self.reset_id()
-        self.backup()
     
     def egpid(self):
         conn = connect_db().condb
@@ -57,12 +57,24 @@ class auto_egp:
         base_url = 'http://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml'
         anounce_types = ['W0', 'W2', 'B0', 'D0', 'D1', 'D2', 'P0', 'W1', '15']
 
+        announce_type_mapping = {
+            'W0': 1,
+            'D1': 2,
+            'P0': 3,
+            '15': 4,
+            'D0': 5,
+            'W1': 6,
+            'D2': 7,
+            'W2': 8,
+            'B0': 9
+        }
+
         self.list_data = {
             'title': [],
             'link': [],
             'pubDate': [],
             'anounceType': [],
-            'egpid': []
+            'numID': []
         }
 
         try:
@@ -72,8 +84,8 @@ class auto_egp:
                     res = urlopen(url)
                     tree = ET.parse(source=res, parser=ET.XMLParser(encoding='cp874')).getroot()
                     for root in tree.findall('./channel/item'):
-                        self.list_data['egpid'].append(dept_id)
-                        self.list_data['anounceType'].append(anounce_type)
+                        self.list_data['numID'].append(dept_id)
+                        self.list_data['pubT'].append(announce_type_mapping[anounce_type])
                         for rss in root:
                             if rss.tag not in ('description', 'guid'):
                                 self.list_data[rss.tag].append(rss.text)
