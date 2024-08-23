@@ -54,72 +54,31 @@ class auto_egp:
         import xml.etree.ElementTree as ET
         from datetime import datetime
 
-        url = 'http://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml'
-        parameter_deptId = '?deptId='
-        parameter_anounceType = '&anounceType='
+        base_url = 'http://process3.gprocurement.go.th/EPROCRssFeedWeb/egpannouncerss.xml'
+        anounce_types = ['W0', 'W2', 'B0', 'D0', 'D1', 'D2', 'P0', 'W1', '15']
 
-        anounceType_ = ['W0', 'W2', 'B0', 'D0', 'D1', 'D2', 'P0', 'W1', '15']
-
-        self.list_data = {
+        list_data = {
             'title': [],
             'link': [],
             'pubDate': [],
-            'numID': [],
-            'pubT': [],
-            'pubD': [],
-            'pubM': [],
-            'pubY': []
+            'anounceType': [],
+            'egpid': []
         }
 
-        for anounceType in anounceType_:
-            for deptId in self.deptId_:
-                url_str = url + parameter_deptId + deptId + parameter_anounceType + anounceType
-                try:
-                    res = urlopen(url_str)
-                    try:
-                        tree = ET.parse(source=res, parser=ET.XMLParser(encoding='cp874')).getroot()
-                        for root in tree.findall('./channel/item'):
-                            if root.tag == 'item':
-                                self.list_data['numID'].append(deptId)
-
-                                if anounceType == 'W0':
-                                    self.list_data['pubT'].append(1)
-                                elif anounceType == 'D1':
-                                    self.list_data['pubT'].append(2)
-                                elif anounceType == 'P0':
-                                    self.list_data['pubT'].append(3)
-                                elif anounceType == '15':
-                                    self.list_data['pubT'].append(4)
-                                elif anounceType == 'D0':
-                                    self.list_data['pubT'].append(5)
-                                elif anounceType == 'W1':
-                                    self.list_data['pubT'].append(6)
-                                elif anounceType == 'D2':
-                                    self.list_data['pubT'].append(7)
-                                elif anounceType == 'W2':
-                                    self.list_data['pubT'].append(8)
-                                else:       # B0
-                                    self.list_data['pubT'].append(9)
-
-                                for rss in root:
-                                    if rss.tag == 'description' or rss.tag == 'guid':
-                                        pass
-                                    else:
-                                        if rss.tag == 'pubDate':
-                                            self.list_data[rss.tag].append(rss.text)
-                                            pubDate_str = datetime.strptime(rss.text, '%Y-%m-%d').date()
-                                            self.list_data['pubD'].append(pubDate_str.strftime('%d'))
-                                            self.list_data['pubM'].append(pubDate_str.strftime('%m'))
-                                            self.list_data['pubY'].append(pubDate_str.strftime('%Y'))
-                                        else:
-                                            self.list_data[rss.tag].append(rss.text)
-                            else:
-                                print('No ITEMS')
-
-                    except ET.ParseError as err:
-                        print(err)
-                except (URLError, HTTPError, ConnectionError) as err:
-                    print(err)
+        try:
+            for anounce_type in anounce_types:
+                for dept_id in dept_ids:
+                    url = f"{base_url}?deptId={dept_id}&anounceType={anounce_type}"
+                    res = urlopen(url)
+                    tree = ET.parse(source=res, parser=ET.XMLParser(encoding='cp874')).getroot()
+                    for root in tree.findall('./channel/item'):
+                        list_data['egpid'].append(dept_id)
+                        list_data['anounceType'].append(anounce_type)
+                        for rss in root:
+                            if rss.tag not in ('description', 'guid'):
+                                list_data[rss.tag].append(rss.text)
+        except (URLError, HTTPError, ConnectionError) as err:
+            print(f"Error fetching data: {err}")
             
     def upload(self):
         conn = connect_db().condb
