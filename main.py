@@ -136,4 +136,4 @@ if __name__ == '__main__':
     start = time()
     auto_egp()
     end = time()
-    print('Succeed to Complete.!', end-start)
+    print('Success to Complete.!', end-start)
